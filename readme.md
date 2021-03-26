@@ -1,6 +1,18 @@
-# Task Description
+# XML JSON PROPERTIES
 
-Your domain area is air company. You will have following types of planes:
+### Goals
+- Practice to work with XML marshaling and unmarshalling.
+- Practice to work with JSON serialization and deserialization.
+- Practice to work with read and write of Properties file.
+
+### Short description
+Your domain area is air company. You should implement reading/writing air company information using different sources (XML, JSON, Properties). You should throws required exceptions based on situation with data source processing.
+
+Please see readme.md  file in skeleton repository for detailed instructions.
+
+
+### Detailed description
+You will have following types of planes:
 
 - Military Plane.
 - Passenger Plane.
@@ -12,35 +24,40 @@ working with following data sources:**
 - XML file.
 
 **2. You are requested to use following types of exceptions:**
-- DataSourceFileNotExistsException.java - in case XML, JSON, Property file is not present by defined system path.
-- UbableToParseDataSourceException.java - in case of any parsing error of JSON or XML(e.g. not XML file(plain text)).
-- UbableToWriteDataToSourceException.java - in case of any writing error. This exception also need to be thrown in case of we pass NULL object for writing.
+- `DataSourceFileNotExistsException.java` - in case XML, JSON, Property file is not present by defined system path.
+- `UbableToParseDataSourceException.java` - in case of any parsing error of JSON or XML(e.g. not XML file(plain text)).
+- `UbableToWriteDataToSourceException.java` - in case of any writing error. This exception also need to be thrown in case of we pass NULL object for writing.
+
+
 ---
-###### Testing flow:
-##### Read
-Tests will generate sample of XML, JSON, Property and call your correspondent reader passing following info into constructor:
-- Absolute path to the file.
-##### Write
-Tests will generate expected XML, JSON, Property file. Then it will create correspondent writer passing following info into constructor:
-- Absolute path to the file.
-
-After that it will call write method and pass as argument following info:
-- Aircompany object to write into file.
-
-Finally test will compare generated expected file with file that was created as result of calling write method of correspondent writer.
-
 ###### You are allowed:
 
-- Create new classes.
-- Add new dependencies in pom.xml.
-- Add annotations to existing classes (over fields and classes).
-- Modify classes which is designed for your implementation (marked with throw new UnsupportedOperationException("You need to implement this logic");)
+- Create new classes/packages.
+- Add new dependencies in `pom.xml`.
+- Add annotations to existing classes (over fields or classes).
+- Modify classes which is designed for your implementation (marked with `throw new UnsupportedOperationException("You need to implement this logic");`)
 
 ###### You are NOT allowed:
 
 - Delete existing classes.
-- Delete existing dependencies in pom.xml.
 - Move existing classes to another package.
+- Change interface of class or methods signature for existing classes.
+- Delete existing dependencies in `pom.xml`.
+
+---
+
+###### Testing flow:
+##### Read
+Tests will generate sample of XML, JSON, Property and call your correspondent reader passing following info into a constructor:
+- Absolute path to the file.
+##### Write
+Tests will generate expected XML, JSON, Property file. Then it will create correspondent writer passing following info into a constructor:
+- Absolute path to the file.
+
+After that it will call write method and pass as argument following info:
+- `Aircompany` object to write into file.
+
+Finally test will compare generated expected file with file that was created as result of calling write method of correspondent writer.
 
 ---
 ##### JSON example
@@ -66,7 +83,7 @@ For passenger plane field "MilitaryType" is always NULL. To identify type of pla
     "Distance": 63870
   }
 ```
-
+---
 ##### XML example
 Main xml element is `<planes>`. This element has two types of child elements `<MilitaryPlane>` and `<PassengerPlane>` depending on type of plane.
 Military plan doesn't have `<Capacity>` field. Passenger plane doesn't have `<MilitaryType>` field.
@@ -86,7 +103,7 @@ Military plan doesn't have `<Capacity>` field. Passenger plane doesn't have `<Mi
     </PassengerPlane>
 </planes>
 ```
-
+---
 ##### Property example
 Property file represent list of planes. Each plane has set of properties which starts with `plane${index}`. For Military planes property `capacity` is missed (not applicable for that type of plane).
 For passenger planes property `militaryType` is missed (not applicable for that type of plane).
