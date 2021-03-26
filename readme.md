@@ -61,8 +61,8 @@ Finally test will compare generated expected file with file that was created as 
 
 ---
 ##### JSON example
-Json  represents JSON Array of planes. For Military planes field "Capacity" is always NULL (not applicable for that type of plane).
-For passenger plane field "MilitaryType" is always NULL. To identify type of plane use "Type" field.
+Json  represents JSON Array of planes. For Military planes field `Capacity` is always NULL (not applicable for that type of plane).
+For passenger plane field `MilitaryType` is always NULL. To identify type of plane use `Type` field.
 
 ```
 [
