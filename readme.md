@@ -1,7 +1,7 @@
 # XML JSON PROPERTIES
 
 ### Abilities
-- Able to marshall and unmarshall XML.
+- Able to marshal and unmarshal XML.
 - Able to work serialize and deserialize JSON.
 - Able to read and write Properties file.
 
