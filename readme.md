@@ -1,9 +1,9 @@
 # XML JSON PROPERTIES
 
-### Goals
-- Practice to work with XML marshaling and unmarshalling.
-- Practice to work with JSON serialization and deserialization.
-- Practice to work with read and write of Properties file.
+### Abilities
+- Able to marshall and unmarshall XML.
+- Able to work serialize and deserialize JSON.
+- Able to read and write Properties file.
 
 ### Short description
 Your domain area is air company. You should implement reading/writing air company information using different sources (XML, JSON, Properties). You should throws required exceptions based on situation with data source processing.
@@ -11,7 +11,7 @@ Your domain area is air company. You should implement reading/writing air compan
 Please see readme.md  file in skeleton repository for detailed instructions.
 
 
-### Detailed description
+### Detailed instructions
 You will have following types of planes:
 
 - Military Plane.
