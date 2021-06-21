@@ -1,13 +1,14 @@
 package com.epam.tat.xmljsonproperties.datareading.property;
 
 import com.epam.tat.xmljsonproperties.datareading.AbstractDataProcessor;
+import com.epam.tat.xmljsonproperties.exceptions.DataSourceFileNotExistsException;
+import com.epam.tat.xmljsonproperties.exceptions.UbableToWriteDataToSourceException;
 import com.epam.tat.xmljsonproperties.model.AirCompany;
-import com.epam.tat.xmljsonproperties.model.planes.AbstractPlane;
-import com.epam.tat.xmljsonproperties.model.planes.MilitaryPlane;
+import com.epam.tat.xmljsonproperties.model.planes.*;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,17 @@ import java.util.Properties;
 
 public class PropertyDataProcessor extends AbstractDataProcessor {
 
-    private static final String MILITARY_PLANE_HEADING = "#military planes";
-    private static final String PASSENGER_PLANE_HEADING = "#passenger planes";
+    public static final String FILE_NOT_FOUND_MESSAGE = "Can't find file %s";
+    public static final String FILE_READ_EXCEPTION_MESSAGE = "Can't read file %s";
+    public static final String FILE_WRITE_EXCEPTION_MESSAGE = "Can't write to file %s";
+    public static final String PLANE_FIELD_PATTERN = "%s.%s";
+    private static final String MILITARY_PLANE_TYPE = "military";
+    private static final String PASSENGER_PLANE_TYPE = "passenger";
+    private static final String PLANE_TYPE_REGEX = "plane\\d+\\.type";
+    private static final String MILITARY_PLANES_COMMENT = "#military planes";
+    private static final String PASSENGER_PLANES_COMMENT = "#passenger planes";
+
+    private static int planeId = 0;
 
     public PropertyDataProcessor(String sourceIdentifier) {
         super(sourceIdentifier);
@@ -27,94 +37,136 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
         List<AbstractPlane> planes = new ArrayList<>();
         Properties properties = new Properties();
 
-        try (FileReader fileReader = new FileReader(getSourceIdentifier());
-             BufferedReader reader = new BufferedReader(fileReader)) {
-            String line;
+        try (FileReader fileReader = new FileReader(getSourceIdentifier())) {
 
-            createMilitaryPlanesFromProperties(reader);
-
-
-            /*do {
-                line = reader.readLine();
-                if (line.isEmpty()) {
-                    continue;
-                }
-                if (line.matches(COMMENT_REGEX)) {
-                    break;
-                }
-            } while (true);
-
-            while (!(line = reader.readLine()).matches(COMMENT_REGEX)) {
-
-            }*/
-            properties.load(reader);
-
-            properties.forEach((k, v) -> System.out.println(k + " : " + v));
+            properties.load(fileReader);
+            createPlanes(planes, properties);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new DataSourceFileNotExistsException(String.format(FILE_NOT_FOUND_MESSAGE, getSourceIdentifier(), e));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new DataSourceFileNotExistsException(String.format(FILE_READ_EXCEPTION_MESSAGE, getSourceIdentifier(), e));
         }
-
-
         return new AirCompany(planes);
     }
 
-    private List<MilitaryPlane> createMilitaryPlanesFromProperties(BufferedReader reader) throws IOException {
-        StringBuilder militaryPlaneLines = new StringBuilder();
-        StringBuilder passengerPlaneLines = new StringBuilder();
-        String line = null;
+    private void createPlanes(List<AbstractPlane> planes, Properties properties) {
 
-        while ((line = reader.readLine()) != null) {
-            String s = line;
-            if (line.contains(MILITARY_PLANE_HEADING)) {
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains(PASSENGER_PLANE_HEADING)) {
-                        break;
-                    }
-                    militaryPlaneLines.append(line);
-                    militaryPlaneLines.append('\n');
+        for (Object object : properties.keySet()) {
+            String propertyName = (String) object;
+
+            if (propertyName.matches(PLANE_TYPE_REGEX)) {
+                String planeName = propertyName.substring(0, propertyName.indexOf('.'));
+                String planeType = (String) properties.get(String.format(PLANE_FIELD_PATTERN, planeName, PlanesFeatures.TYPE));
+                if (planeType.equals(MILITARY_PLANE_TYPE)) {
+                    MilitaryPlane plane = new MilitaryPlane();
+                    initMilitaryPlane(planeName, properties, plane);
+                    planes.add(plane);
                 }
-            }
-            if (line.contains(PASSENGER_PLANE_HEADING)) {
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains(PASSENGER_PLANE_HEADING)) {
-                        break;
-                    }
-                    passengerPlaneLines.append(line);
-                    passengerPlaneLines.append('\n');
 
+                if (planeType.equals(PASSENGER_PLANE_TYPE)) {
+                    PassengerPlane plane = new PassengerPlane();
+                    initPassengerPlane(planeName, properties, plane);
+                    planes.add(plane);
                 }
             }
         }
+    }
 
-        System.out.println(militaryPlaneLines);
-        System.out.println(passengerPlaneLines);
+    private void initMilitaryPlane(String name, Properties properties, MilitaryPlane plane) {
+        plane.setModel(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MODEL)));
+        plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_SPEED))));
+        plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_FLIGHT_DISTANCE))));
+        plane.setMilitaryType(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MILITARY_TYPE)));
+    }
 
-
-        /*Properties properties = new Properties();
-
-        do{
-            line = reader.readLine();
-            if(line.isEmpty()){
-                continue;
-            }
-            if(line == null){
-                return new ArrayList<MilitaryPlane>();
-            }
-            if(line.contains(MILITARY_PLANE_HEADING)){
-                while((line = reader.readLine()) != null){
-
-                }
-            }
-        }while(line != null);*/
-
-        return new ArrayList<MilitaryPlane>();
+    private void initPassengerPlane(String name, Properties properties, PassengerPlane plane) {
+        plane.setModel(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MODEL)));
+        plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_SPEED))));
+        plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_FLIGHT_DISTANCE))));
+        plane.setMaxPassengerCapacity(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_PASSENGER_CAPACITY))));
     }
 
     @Override
     public void writeDataToSource(AirCompany aircompany) {
-        throw new UnsupportedOperationException("You need to implement this method");
+        Properties properties = new Properties();
+
+        try (FileWriter fileWriter = new FileWriter(getSourceIdentifier(), true)) {
+
+            fileWriter.write(MILITARY_PLANES_COMMENT + '\n');
+            for(MilitaryPlane plane : aircompany.getMilitaryPlanes()){
+                addMilitaryPlaneToProperties(plane, properties);
+                properties.store(fileWriter, "");
+                fileWriter.write('\n');
+            }
+
+            fileWriter.write(PASSENGER_PLANES_COMMENT + '\n');
+            for(PassengerPlane plane : aircompany.getPassengerPlanes()){
+                addPassengerPlaneToProperties(plane, properties);
+                properties.store(fileWriter, "");
+                fileWriter.write('\n');
+            }
+
+
+        } catch (IOException e) {
+            throw new UbableToWriteDataToSourceException(String.format(FILE_WRITE_EXCEPTION_MESSAGE, getSourceIdentifier(), e));
+        }
+
+    }
+
+    private void addMilitaryPlaneToProperties(MilitaryPlane plane, Properties properties) {
+        int id = planeId++;
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MAX_FLIGHT_DISTANCE),
+                String.valueOf(plane.getMaxFlightDistance()));
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MILITARY_TYPE),
+                plane.getMilitaryType());
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MODEL),
+                plane.getModel());
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MAX_SPEED),
+                String.valueOf(plane.getMaxSpeed()));
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.TYPE),
+                PlaneTypes.MILITARY_PLANE.toString());
+    }
+
+    private void addPassengerPlaneToProperties(PassengerPlane plane, Properties properties) {
+        int id = planeId++;
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MAX_FLIGHT_DISTANCE),
+                String.valueOf(plane.getMaxFlightDistance()));
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MAX_PASSENGER_CAPACITY),
+                String.valueOf(plane.getMaxPassengerCapacity()));
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MODEL),
+                plane.getModel());
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.MAX_SPEED),
+                String.valueOf(plane.getMaxSpeed()));
+
+        properties.setProperty(String.format("plane%d.%s",
+                id,
+                PlanesFeatures.TYPE),
+                PlaneTypes.MILITARY_PLANE.toString());
     }
 }
