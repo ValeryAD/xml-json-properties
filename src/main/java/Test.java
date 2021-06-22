@@ -1,4 +1,5 @@
 import com.epam.tat.xmljsonproperties.datareading.property.PropertyDataProcessor;
+import com.epam.tat.xmljsonproperties.datareading.xml.XmlDataProcessor;
 import com.epam.tat.xmljsonproperties.model.AirCompany;
 
 import java.io.FileNotFoundException;
@@ -12,13 +13,14 @@ public class Test {
     public static void main(String[] args) throws IOException {
         final String path = "d:\\temp\\planes.properties";
         final String outPutPath = "d:\\temp\\planesOutput.properties";
-
-
-
-        PropertyDataProcessor pdp = new PropertyDataProcessor(path);
+        /*PropertyDataProcessor pdp = new PropertyDataProcessor(path);
         AirCompany ac = pdp.readDataFromSource();
         //ac.getPlanes().stream().forEach(p -> System.out.println(p));
+        pdp.writeDataToSource(ac);*/
 
-        pdp.writeDataToSource(ac);
+        XmlDataProcessor xdp = new XmlDataProcessor("d:\\temp\\planes.xml");
+        AirCompany ac = xdp.readDataFromSource();
+        ac.getPlanes().forEach(p -> System.out.println(p));
+
     }
 }

@@ -1,32 +1,20 @@
 package com.epam.tat.xmljsonproperties.model.planes;
 
 public enum PlaneTypes {
-    MILITARY_PLANE("military"), PASSENGER_PLANE("passenger");
+    MILITARY_PLANE("military", "MilitaryPlane"), PASSENGER_PLANE("passenger", "PassengerPlane");
     private String shortName;
+    private String name;
 
-    PlaneTypes(String shortName) {
+    PlaneTypes(String shortName, String name) {
         this.shortName = shortName;
     }
 
-    public AbstractPlane createPlane() {
-        AbstractPlane plane;
-
-        switch (this) {
-            case MILITARY_PLANE:
-                plane = new MilitaryPlane();
-                break;
-            case PASSENGER_PLANE:
-                plane = new PassengerPlane();
-                break;
-            default:
-                plane = null;
-        }
-
-        return plane;
-    }
-
-    @Override
-    public String toString() {
+    public String getShortName(){
         return shortName;
     }
+
+    public String getName(){
+        return name;
+    }
+
 }
