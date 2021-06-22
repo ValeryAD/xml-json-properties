@@ -13,8 +13,11 @@ public class Test {
         final String path = "d:\\temp\\planes.properties";
         final String outPutPath = "d:\\temp\\planesOutput.properties";
 
+
+
         PropertyDataProcessor pdp = new PropertyDataProcessor(path);
         AirCompany ac = pdp.readDataFromSource();
+        //ac.getPlanes().stream().forEach(p -> System.out.println(p));
 
         pdp.writeDataToSource(ac);
     }
