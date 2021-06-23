@@ -5,6 +5,8 @@ import com.epam.tat.xmljsonproperties.exceptions.DataSourceFileNotExistsExceptio
 import com.epam.tat.xmljsonproperties.exceptions.UbableToWriteDataToSourceException;
 import com.epam.tat.xmljsonproperties.model.AirCompany;
 import com.epam.tat.xmljsonproperties.model.planes.*;
+import static com.epam.tat.xmljsonproperties.constants.ExceptionMessages.*;
+import static com.epam.tat.xmljsonproperties.constants.PlaneConstants.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,9 +18,6 @@ import java.util.Properties;
 
 public class PropertyDataProcessor extends AbstractDataProcessor {
 
-    private static final String FILE_NOT_FOUND_MESSAGE = "Can't find file %s";
-    private static final String FILE_READ_EXCEPTION_MESSAGE = "Can't read file %s";
-    private static final String FILE_WRITE_EXCEPTION_MESSAGE = "Can't write to file %s";
     private static final String PLANE_FIELD_PATTERN = "%s.%s";
     private static final String PLANE_TYPE_REGEX = "plane\\d+\\.type";
     private static final String MILITARY_PLANES_COMMENT = "military planes";
@@ -56,7 +55,7 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
 
             if (key.matches(PLANE_TYPE_REGEX)) {
                 String planeName = key.substring(0, key.indexOf('.'));
-                String planeType = (String) properties.get(String.format(PLANE_FIELD_PATTERN, planeName, PlanesFeatures.TYPE));
+                String planeType = (String) properties.get(String.format(PLANE_FIELD_PATTERN, planeName, PROPERTY_TYPE));
                 if (planeType.equals(PlaneTypes.MILITARY_PLANE.getShortName())) {
                     MilitaryPlane plane = new MilitaryPlane();
                     initMilitaryPlane(planeName, properties, plane);
@@ -73,17 +72,18 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
     }
 
     private void initMilitaryPlane(String name, Properties properties, MilitaryPlane plane) {
-        plane.setModel(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MODEL)));
-        plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_SPEED))));
-        plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_FLIGHT_DISTANCE))));
-        plane.setMilitaryType(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MILITARY_TYPE)));
+        plane.setModel(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MODEL.toLowerCase())));
+        plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_SPEED.toLowerCase()))));
+        plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_FLIGHT_DISTANCE.toLowerCase()))));
+        plane.setMilitaryType(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name,
+                FIELD_MILITARY_TYPE.replace(FIELD_MILITARY_TYPE.substring(0,1), FIELD_MILITARY_TYPE.substring(0,1).toLowerCase()))));
     }
 
     private void initPassengerPlane(String name, Properties properties, PassengerPlane plane) {
-        plane.setModel(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MODEL)));
-        plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_SPEED))));
-        plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_FLIGHT_DISTANCE))));
-        plane.setMaxPassengerCapacity(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, PlanesFeatures.MAX_PASSENGER_CAPACITY))));
+        plane.setModel(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MODEL.toLowerCase())));
+        plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_SPEED.toLowerCase()))));
+        plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_FLIGHT_DISTANCE.toLowerCase()))));
+        plane.setMaxPassengerCapacity(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_PASSENGER_CAPACITY.toLowerCase()))));
     }
 
     @Override
@@ -116,27 +116,27 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
         int id = planeId++;
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MAX_FLIGHT_DISTANCE),
+                FIELD_MAX_FLIGHT_DISTANCE.toLowerCase()),
                 String.valueOf(plane.getMaxFlightDistance()));
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MILITARY_TYPE),
+                FIELD_MILITARY_TYPE.replace(FIELD_MILITARY_TYPE.substring(0,1), FIELD_MILITARY_TYPE.substring(0,1).toLowerCase())),
                 plane.getMilitaryType());
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MODEL),
+                FIELD_MODEL.toLowerCase()),
                 plane.getModel());
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MAX_SPEED),
+                FIELD_MAX_SPEED.toLowerCase()),
                 String.valueOf(plane.getMaxSpeed()));
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.TYPE),
+                PROPERTY_TYPE.toLowerCase()),
                 PlaneTypes.MILITARY_PLANE.getShortName());
     }
 
@@ -144,27 +144,27 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
         int id = planeId++;
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MAX_FLIGHT_DISTANCE),
+                FIELD_MAX_FLIGHT_DISTANCE.toLowerCase()),
                 String.valueOf(plane.getMaxFlightDistance()));
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MAX_PASSENGER_CAPACITY),
+                FIELD_MAX_PASSENGER_CAPACITY.toLowerCase()),
                 String.valueOf(plane.getMaxPassengerCapacity()));
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MODEL),
+                FIELD_MODEL.toLowerCase()),
                 plane.getModel());
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.MAX_SPEED),
+                FIELD_MAX_SPEED.toLowerCase()),
                 String.valueOf(plane.getMaxSpeed()));
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                PlanesFeatures.TYPE),
+                PROPERTY_TYPE.toLowerCase()),
                 PlaneTypes.PASSENGER_PLANE.getShortName());
     }
 }
