@@ -4,9 +4,9 @@ import com.epam.tat.xmljsonproperties.datareading.AbstractDataProcessor;
 import com.epam.tat.xmljsonproperties.exceptions.DataSourceFileNotExistsException;
 import com.epam.tat.xmljsonproperties.exceptions.UbableToWriteDataToSourceException;
 import com.epam.tat.xmljsonproperties.model.AirCompany;
-import com.epam.tat.xmljsonproperties.model.planes.*;
-import static com.epam.tat.xmljsonproperties.constants.ExceptionMessages.*;
-import static com.epam.tat.xmljsonproperties.constants.PlaneConstants.*;
+import com.epam.tat.xmljsonproperties.model.planes.AbstractPlane;
+import com.epam.tat.xmljsonproperties.model.planes.MilitaryPlane;
+import com.epam.tat.xmljsonproperties.model.planes.PassengerPlane;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import static com.epam.tat.xmljsonproperties.constants.ExceptionMessages.*;
+import static com.epam.tat.xmljsonproperties.constants.PlaneConstants.*;
 
 public class PropertyDataProcessor extends AbstractDataProcessor {
 
@@ -55,14 +58,14 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
 
             if (key.matches(PLANE_TYPE_REGEX)) {
                 String planeName = key.substring(0, key.indexOf('.'));
-                String planeType = (String) properties.get(String.format(PLANE_FIELD_PATTERN, planeName, PROPERTY_TYPE));
-                if (planeType.equals(PlaneTypes.MILITARY_PLANE.getShortName())) {
+                String planeType = (String) properties.get(String.format(PLANE_FIELD_PATTERN, planeName, PROPERTY_TYPE.toLowerCase()));
+                if (planeType.equals(MILITARY_PLANE_TYPE)) {
                     MilitaryPlane plane = new MilitaryPlane();
                     initMilitaryPlane(planeName, properties, plane);
                     planes.add(plane);
                 }
 
-                if (planeType.equals(PlaneTypes.PASSENGER_PLANE.getShortName())) {
+                if (planeType.equals(PASSENGER_PLANE_TYPE)) {
                     PassengerPlane plane = new PassengerPlane();
                     initPassengerPlane(planeName, properties, plane);
                     planes.add(plane);
@@ -76,7 +79,7 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
         plane.setMaxSpeed(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_SPEED.toLowerCase()))));
         plane.setMaxFlightDistance(Integer.parseInt(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name, FIELD_MAX_FLIGHT_DISTANCE.toLowerCase()))));
         plane.setMilitaryType(properties.getProperty(String.format(PLANE_FIELD_PATTERN, name,
-                FIELD_MILITARY_TYPE.replace(FIELD_MILITARY_TYPE.substring(0,1), FIELD_MILITARY_TYPE.substring(0,1).toLowerCase()))));
+                FIELD_MILITARY_TYPE.replace(FIELD_MILITARY_TYPE.substring(0, 1), FIELD_MILITARY_TYPE.substring(0, 1).toLowerCase()))));
     }
 
     private void initPassengerPlane(String name, Properties properties, PassengerPlane plane) {
@@ -107,7 +110,7 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
             fileWriter.write('\n');
 
         } catch (IOException e) {
-            throw new UbableToWriteDataToSourceException(String.format(FILE_WRITE_EXCEPTION_MESSAGE, getSourceIdentifier(), e));
+            throw new UbableToWriteDataToSourceException(String.format(FILE_WRITE_TO_FILE_EXCEPTION_MESSAGE, getSourceIdentifier(), e));
         }
 
     }
@@ -121,7 +124,7 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
-                FIELD_MILITARY_TYPE.replace(FIELD_MILITARY_TYPE.substring(0,1), FIELD_MILITARY_TYPE.substring(0,1).toLowerCase())),
+                FIELD_MILITARY_TYPE.replace(FIELD_MILITARY_TYPE.substring(0, 1), FIELD_MILITARY_TYPE.substring(0, 1).toLowerCase())),
                 plane.getMilitaryType());
 
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
@@ -137,7 +140,7 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
                 PROPERTY_TYPE.toLowerCase()),
-                PlaneTypes.MILITARY_PLANE.getShortName());
+                MILITARY_PLANE_TYPE);
     }
 
     private void addPassengerPlaneToProperties(PassengerPlane plane, Properties properties) {
@@ -165,6 +168,6 @@ public class PropertyDataProcessor extends AbstractDataProcessor {
         properties.setProperty(String.format(PROPERTY_KEY_PATTERN,
                 id,
                 PROPERTY_TYPE.toLowerCase()),
-                PlaneTypes.PASSENGER_PLANE.getShortName());
+                PASSENGER_PLANE_TYPE);
     }
 }
